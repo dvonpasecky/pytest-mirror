@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=80.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "your-project-name"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest", "pytest-cov", "pytest-mock", "ruff"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["your_package_name*"]
+
+[tool.setuptools.package-data]
+"your_package_name" = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = """
+--cov
+"""
+
+[tool.coverage.run]
+branch = true
+source = ["src/your_package_name"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+target-version = "py311"
+
+[tool.ruff.lint]
+extend-select = [
+    "UP",  # pyupgrade
+    "I",   # isort
+    "B",   # bugbear
+    "C4",  # comprehensions
+    "TID", # tidy imports
+    "G",   # lazy logging
+    "D",   # docstring style
+]
+ignore = []
+unfixable = [
+    "F401", # unused imports
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["your_package_name"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
