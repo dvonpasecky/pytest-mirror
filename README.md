@@ -22,11 +22,15 @@ Built with [pluggy](https://pluggy.readthedocs.io/) for extensible plugin archit
 
 ## Installation
 
+```bash
+pip install pytest-mirror
+```
+
 For local development:
 
 ```bash
 # Clone the repository and install in development mode
-git clone <repository-url>
+git clone https://github.com/dvonpasecky/pytest-mirror.git
 cd pytest-mirror
 pip install -e .
 ```
