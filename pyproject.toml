@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytest-mirror"
-version = "0.1.0"
+version = "0.1.1"
 requires-python = ">=3.11"
 dependencies = ["pluggy>=1.6.0"]
 description = "A pluggy-based pytest plugin and CLI tool for ensuring your test suite mirrors your source code structure"
