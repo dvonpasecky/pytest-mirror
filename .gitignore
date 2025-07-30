@@ -1,7 +1,9 @@
 # Byte-compiled / optimized / DLL files
+.vscode/
 __pycache__/
 *.py[codz]
 *$py.class
+todo.md
 
 # C extensions
 *.so

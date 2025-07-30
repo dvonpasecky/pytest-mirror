@@ -3,7 +3,7 @@ requires = ["setuptools>=80.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "your-project-name"
+name = "pytest-mirror"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = []
@@ -16,10 +16,10 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["your_package_name*"]
+include = ["pytest_mirror*"]
 
 [tool.setuptools.package-data]
-"your_package_name" = ["py.typed"]
+"pytest_mirror" = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -29,7 +29,7 @@ addopts = """
 
 [tool.coverage.run]
 branch = true
-source = ["src/your_package_name"]
+source = ["src/pytest_mirror"]
 omit = ["tests/*"]
 
 [tool.coverage.report]
@@ -55,7 +55,13 @@ unfixable = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["your_package_name"]
+known-first-party = ["pytest_mirror"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[project.entry-points."pytest11"]
+mirror = "pytest_mirror.plugin"
+
+[project.scripts]
+pytest-mirror = "pytest_mirror.cli:main"
