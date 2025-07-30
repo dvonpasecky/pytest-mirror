@@ -8,11 +8,11 @@ import sys
 import tomllib
 from pathlib import Path
 
+from .constants import MIRROR_PREFIX
 from .core import generate_missing_tests
 from .plugin_manager import get_plugin_manager
 
-# Constants
-MIRROR_PREFIX = "[MIRROR]"
+# Module-specific constants
 ERROR_PREFIX = "[ERROR]"
 USAGE_MESSAGE = (
     "usage: pytest-mirror [generate|validate] [--package-dir ...] [--tests-dir ...]"

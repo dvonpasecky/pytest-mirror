@@ -8,18 +8,12 @@ from pathlib import Path
 
 import pytest
 
+from .constants import DEFAULT_TEST_CONTENT, MIRROR_PREFIX
 from .plugin_manager import get_plugin_manager
 from .validator import MirrorValidator
 
-# Constants
-MIRROR_PREFIX = "[MIRROR]"
+# Module-specific constants
 MIRROR_DEBUG_PREFIX = "[MIRROR][DEBUG]"
-DEFAULT_TEST_CONTENT = """import pytest
-
-
-def test_placeholder():
-    assert False, 'This is a placeholder test. Please implement.'
-"""
 MISSING_TESTS_MESSAGE = "Missing tests detected (auto-generate disabled):"
 VALIDATION_SUCCESS_MESSAGE = "Test structure validated successfully."
 VALIDATION_FAILED_MESSAGE = "Test structure validation failed"

@@ -2,13 +2,9 @@
 
 from pathlib import Path
 
-# Constants
-DEFAULT_TEST_CONTENT = """import pytest
+from .constants import DEFAULT_TEST_CONTENT
 
-
-def test_placeholder():
-    assert False, 'This is a placeholder test. Please implement.'
-"""
+# Module-specific constants
 INIT_FILE_NAME = "__init__.py"
 TEST_FILE_PREFIX = "test_"
 ALL_TESTS_PRESENT_MESSAGE = "All tests are in place"

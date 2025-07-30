@@ -4,9 +4,10 @@ from pathlib import Path
 
 import pluggy
 
+from .constants import PACKAGE_NAME
 from .core import find_missing_tests
 
-hookimpl = pluggy.HookimplMarker("pytest_mirror")
+hookimpl = pluggy.HookimplMarker(PACKAGE_NAME)
 
 
 class MirrorValidator:

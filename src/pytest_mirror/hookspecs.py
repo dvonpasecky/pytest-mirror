@@ -7,7 +7,9 @@ from pathlib import Path
 
 import pluggy
 
-hookspec = pluggy.HookspecMarker("pytest_mirror")
+from .constants import PACKAGE_NAME
+
+hookspec = pluggy.HookspecMarker(PACKAGE_NAME)
 
 
 class MirrorSpecs:
