@@ -48,6 +48,7 @@ extend-select = [
     "TID", # tidy imports
     "G",   # lazy logging
     "D",   # docstring style
+    "PTH", # path-like
 ]
 ignore = []
 unfixable = [

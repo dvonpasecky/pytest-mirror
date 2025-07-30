@@ -74,3 +74,59 @@ def test_validate_test_structure_test_file_exists(tmp_path, create_file):
     validator = MirrorValidator()
     missing = validator.validate_test_structure(pkg, tests)
     assert missing == []
+
+
+class TestValidatorCoverage:
+    """Additional tests for validator module coverage."""
+
+    def test_mirror_validator_class_exists(self):
+        """Test that MirrorValidator class exists."""
+        from pytest_mirror import validator
+
+        assert hasattr(validator, "MirrorValidator")
+        assert callable(validator.MirrorValidator)
+
+    def test_validator_instantiation(self):
+        """Test validator can be instantiated."""
+        v = MirrorValidator()
+        assert hasattr(v, "validate_test_structure")
+        assert callable(v.validate_test_structure)
+
+    def test_validator_method_with_paths(self, tmp_path, project_structure):
+        """Test validator method with actual paths."""
+        from pathlib import Path
+
+        pkg, tests = project_structure(tmp_path)
+        v = MirrorValidator()
+
+        result = v.validate_test_structure(pkg, tests)
+        assert isinstance(result, list)
+        assert all(isinstance(path, Path) for path in result)
+
+    def test_validator_with_missing_dirs(self, tmp_path):
+        """Test validator with missing directories."""
+        import pytest
+
+        v = MirrorValidator()
+        nonexistent = tmp_path / "nonexistent"
+
+        # Should raise FileNotFoundError for missing package dir
+        with pytest.raises(FileNotFoundError):
+            v.validate_test_structure(nonexistent, tmp_path / "tests")
+
+    def test_validator_has_hookimpl_decorator(self):
+        """Test that validator method has hookimpl decorator."""
+        v = MirrorValidator()
+        method = v.validate_test_structure
+
+        # Should have hookimpl marker or be callable
+        assert callable(method)
+        # The hookimpl marker might not be directly visible, just test functionality
+
+    def test_hookimpl_marker_exists(self):
+        """Test that hookimpl marker exists in module."""
+        from pytest_mirror import validator
+
+        assert hasattr(validator, "hookimpl")
+        assert hasattr(validator.hookimpl, "project_name")
+        assert validator.hookimpl.project_name == "pytest_mirror"

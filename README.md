@@ -11,6 +11,8 @@ A pluggy-based pytest plugin and CLI tool for ensuring your test suite mirrors y
 - Validate that your test suite structure matches your package structure.
 - Integrate with pytest as a plugin or use as a standalone CLI.
 
+Built with [pluggy](https://pluggy.readthedocs.io/) for extensible plugin architecture.
+
 ## Features
 
 - **Test Structure Validation**: Checks for missing test files that should correspond to your package modules.
@@ -20,14 +22,19 @@ A pluggy-based pytest plugin and CLI tool for ensuring your test suite mirrors y
 
 ## Installation
 
+For local development:
+
 ```bash
-pip install pytest-mirror
+# Clone the repository and install in development mode
+git clone <repository-url>
+cd pytest-mirror
+pip install -e .
 ```
 
-Or, for local development:
+Or with uv:
 
 ```bash
-pip install -e .
+uv sync
 ```
 
 ## Usage
@@ -49,7 +56,10 @@ pytest-mirror validate
 
 ### As a pytest Plugin
 
-Add `pytest-mirror` to your test dependencies. The plugin will automatically validate your test structure when running pytest.
+Add `pytest-mirror` to your test dependencies. The plugin will automatically:
+
+1. **Validate** your test structure when running pytest
+2. **Auto-generate** missing test files (unless disabled)
 
 ```bash
 pytest
@@ -57,27 +67,28 @@ pytest
 
 #### Plugin Configuration
 
-You can customize the package and tests directory for the plugin using:
+You can customize the plugin behavior using:
 
 - **Command-line flags:**
   - `--mirror-package-dir` (path to your package)
   - `--mirror-tests-dir` (path to your tests)
-- **Environment variables:**
-  - `PYTEST_MIRROR_PACKAGE_DIR`
-  - `PYTEST_MIRROR_TESTS_DIR`
+  - `--mirror-no-generate` (disable automatic test generation)
 
-If neither is set, the plugin will auto-detect the most likely directories.
+If package and tests directories are not specified, the plugin will auto-detect the most likely directories.
+
+**Auto-generation behavior**: By default, the plugin will automatically create missing test files when pytest runs. Use `--mirror-no-generate` to disable this and only validate structure.
 
 ## API
-
-generate_missing_tests('src/your_package', 'tests')
 
 You can also use the core functions in your own scripts:
 
 ```python
 from pytest_mirror import generate_missing_tests, find_missing_tests
 
+# Generate missing test files
 generate_missing_tests('src/your_package', 'tests')
+
+# Find missing test files without creating them
 missing = find_missing_tests('src/your_package', 'tests')
 print(missing)
 ```
@@ -85,17 +96,21 @@ print(missing)
 ## Development
 
 - All code is in `src/pytest_mirror/`.
-- Tests are in `tests/`.
+- Tests are in `tests/` with 1:1 module mirroring.
 - Run tests with:
 
 ```bash
 pytest
+# or with uv:
+uv run pytest
 ```
 
 - Lint and check style with:
 
 ```bash
 ruff check src/ tests/
+# or with uv:
+uv run ruff check src/ tests/
 ```
 
 ## Contributing

@@ -29,3 +29,53 @@ def test_get_plugin_manager_plugin_registration():
     plugins = list(pm.get_plugins())
     # There should be at least one plugin and it should be a MirrorValidator
     assert any("MirrorValidator" in str(p) for p in plugins)
+
+
+class TestPluginManagerCoverage:
+    """Additional tests for plugin manager module coverage."""
+
+    def test_get_plugin_manager_returns_manager(self):
+        """Test plugin manager returns a PluginManager instance."""
+        pm = get_plugin_manager()
+        assert hasattr(pm, "hook")
+        assert hasattr(pm, "register")
+        assert hasattr(pm, "unregister")
+
+    def test_plugin_manager_has_project_name(self):
+        """Test plugin manager has correct project name."""
+        pm = get_plugin_manager()
+        assert pm.project_name == "pytest_mirror"
+
+    def test_plugin_manager_hook_relay(self):
+        """Test plugin manager has hook relay."""
+        pm = get_plugin_manager()
+        assert hasattr(pm.hook, "__class__")
+        # Hook relay may not have our specific hooks until plugins are registered
+
+    def test_plugin_manager_registration(self):
+        """Test plugin registration with manager."""
+        from pytest_mirror.validator import MirrorValidator
+
+        pm = get_plugin_manager()
+        plugin = MirrorValidator()
+
+        # Should be able to register plugin
+        pm.register(plugin, name="test_plugin")
+
+        # Cleanup
+        pm.unregister(name="test_plugin")
+
+    def test_plugin_manager_adds_hookspecs(self):
+        """Test that plugin manager adds MirrorSpecs hookspecs."""
+        pm = get_plugin_manager()
+
+        # The plugin manager should have hookspecs functionality
+        assert hasattr(pm, "add_hookspecs")
+        assert callable(pm.add_hookspecs)
+
+    def test_plugin_manager_registers_validator(self):
+        """Test that plugin manager registers MirrorValidator by default."""
+        pm = get_plugin_manager()
+
+        # Should have plugins registered
+        assert len(pm.get_plugins()) > 0

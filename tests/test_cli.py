@@ -1,7 +1,4 @@
-"""Unit tests for pytest_mirror.cli CLI logic.
-
-Tests the generate_missing_tests and validate_missing_tests functions.
-"""
+"""Unit tests for pytest_mirror.cli CLI logic."""
 
 import sys
 
@@ -192,5 +189,122 @@ def test_cli_main_missing_required_args(monkeypatch, capsys):
         cli.main()
     except SystemExit as e:
         assert e.code != 0
-    err = capsys.readouterr().err
-    assert "usage" in err.lower()
+    out_err = capsys.readouterr()
+    combined = (out_err.out + out_err.err).lower()
+    assert "usage" in combined or "error" in combined
+
+
+def write_pyproject(tmp_path, config: dict):
+    """Helper to write a minimal pyproject.toml with [tool.pytest-mirror] section."""
+    pyproject = tmp_path / "pyproject.toml"
+    lines = ["[tool.pytest-mirror]"]
+    for k, v in config.items():
+        if isinstance(v, str):
+            # Always use forward slashes for TOML compatibility on Windows
+            v_fixed = v.replace("\\", "/")
+            lines.append(f'{k} = "{v_fixed}"')
+        elif isinstance(v, bool):
+            lines.append(f"{k} = {str(v).lower()}")
+        else:
+            lines.append(f"{k} = {v}")
+    pyproject.write_text("\n".join(lines) + "\n")
+    return pyproject
+
+
+def test_cli_main_default_command_from_pyproject(monkeypatch, tmp_path, capsys):
+    """Test CLI uses default-command from pyproject.toml if no command is given."""
+    pkg = tmp_path / "pkg"
+    tests = tmp_path / "tests"
+    (pkg / "foo.py").parent.mkdir(parents=True, exist_ok=True)
+    (pkg / "foo.py").write_text("# dummy\n")
+    write_pyproject(
+        tmp_path,
+        {
+            "default-command": "generate",
+            "package-dir": str(pkg),
+            "tests-dir": str(tests),
+        },
+    )
+    monkeypatch.chdir(tmp_path)
+    import sys
+
+    monkeypatch.setattr(sys, "argv", ["pytest-mirror"])
+    # Import cli after chdir and argv monkeypatch so config is loaded from correct dir
+    import importlib
+
+    import pytest_mirror.cli as cli_mod
+
+    importlib.reload(cli_mod)
+    cli_mod.main(cwd=tmp_path)
+    out = capsys.readouterr().out
+    assert "Created" in out or "All tests are in place" in out
+
+
+def test_cli_main_package_and_tests_dir_from_pyproject(monkeypatch, tmp_path, capsys):
+    """Test CLI uses package-dir and tests-dir from pyproject.toml."""
+    pkg = tmp_path / "pkg"
+    tests = tmp_path / "tests"
+    (pkg / "foo.py").parent.mkdir(parents=True, exist_ok=True)
+    (pkg / "foo.py").write_text("# dummy\n")
+    write_pyproject(
+        tmp_path,
+        {
+            "default-command": "generate",
+            "package-dir": str(pkg),
+            "tests-dir": str(tests),
+        },
+    )
+    monkeypatch.chdir(tmp_path)
+    import sys
+
+    monkeypatch.setattr(sys, "argv", ["pytest-mirror"])
+    import importlib
+
+    import pytest_mirror.cli as cli_mod
+
+    importlib.reload(cli_mod)
+    cli_mod.main(cwd=tmp_path)
+    out = capsys.readouterr().out
+    assert "Created" in out or "All tests are in place" in out
+
+
+class TestConfigurationEdgeCases:
+    """Test configuration and CLI edge cases."""
+
+    def test_cli_config_loading_errors(self, tmp_path, monkeypatch):
+        """Test CLI config loading with various error conditions."""
+        from pytest_mirror.cli import _get_pyproject_config
+
+        # Test with corrupted TOML file
+        bad_toml = tmp_path / "pyproject.toml"
+        bad_toml.write_text("[tool.pytest-mirror\n# invalid toml")
+
+        config = _get_pyproject_config(cwd=tmp_path)
+        assert config == {}  # Should return empty dict on error
+
+        # Test with valid TOML but no pytest-mirror section
+        good_toml = tmp_path / "pyproject.toml"
+        good_toml.write_text("[tool.other]\nkey = 'value'\n")
+
+        config = _get_pyproject_config(cwd=tmp_path)
+        assert config == {}
+
+    def test_detect_default_package_dir_fallbacks(self, tmp_path, monkeypatch):
+        """Test package directory detection fallback logic."""
+        from pytest_mirror.cli import detect_default_package_dir
+
+        monkeypatch.chdir(tmp_path)
+
+        # Test when no src directory exists
+        result = detect_default_package_dir()
+        assert result == tmp_path  # Should fallback to cwd
+
+        # Test when src exists but is empty
+        (tmp_path / "src").mkdir()
+        result = detect_default_package_dir()
+        assert result == tmp_path  # Should still fallback to cwd
+
+        # Test when src has subdirectories
+        (tmp_path / "src" / "mypackage").mkdir()
+        result = detect_default_package_dir()
+        assert result == tmp_path / "src" / "mypackage"

@@ -1,7 +1,4 @@
-"""Unit tests for pytest_mirror.hookspecs.
-
-Tests that the MirrorSpecs class, hookspec marker, and validate_test_structure hook exist and are correctly defined.
-"""
+"""Unit tests for pytest_mirror.hookspecs."""
 
 import inspect
 
@@ -69,3 +66,37 @@ def test_mirrorspecs_validate_test_structure_invocation():
     # Should raise NotImplementedError since it's a stub
     with pytest.raises(NotImplementedError):
         specs.validate_test_structure(Path("foo"), Path("bar"))
+
+
+def test_mirrorspecs_class_instantiation():
+    """Test MirrorSpecs class exists and can be imported."""
+    assert hasattr(hookspecs, "MirrorSpecs")
+    specs = hookspecs.MirrorSpecs()
+    assert hasattr(specs, "validate_test_structure")
+
+
+def test_hookspec_decorator_project_name():
+    """Test hookspec decorator has correct project name."""
+    # The hookspec should be a pluggy.HookspecMarker, not a decorator that adds _hookspec
+    assert hasattr(hookspecs.hookspec, "project_name")
+    assert hookspecs.hookspec.project_name == "pytest_mirror"
+
+
+def test_hookspec_with_arguments():
+    """Test hookspec decorator with arguments."""
+    # Test that we can call the hookspec with arguments
+    decorated = hookspecs.hookspec(firstresult=True)
+    assert callable(decorated)
+
+
+def test_mirrorspecs_method_annotations():
+    """Test MirrorSpecs method has correct signature and annotations."""
+    specs = hookspecs.MirrorSpecs()
+    method = specs.validate_test_structure
+
+    # Check method exists and has correct annotation
+    assert callable(method)
+    assert hasattr(method, "__annotations__")
+
+    # Check that method is properly defined
+    assert callable(method)
